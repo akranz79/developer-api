@@ -1,17 +1,17 @@
 package com.santander.domain.model;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-import java.util.Collections;
-import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@Entity(name ="tb_developer")
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Developer {
 
     @Id
@@ -22,25 +22,12 @@ public class Developer {
     private String email;
     private int idade;
 
-    //@ElementCollection
-    //private List<Skill> skill;
-
-    // Construtor vazio (obrigatório para o JPA)
-    public Developer() {}
-
-    // Construtor com todos os atributos
-    public Developer(String nome, String email, int idade) {
-        this.nome = nome;
-        this.email = email;
-        this.idade = idade;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "developer_projeto",
+            joinColumns = @JoinColumn(name = "developer_id"),
+            inverseJoinColumns = @JoinColumn(name = "projeto_id")
+    )
+    private Set<Projeto> projetos = new HashSet<>();
 }
+

@@ -2,33 +2,48 @@ package com.santander.controller;
 
 import com.santander.domain.model.Developer;
 import com.santander.service.DeveloperService;
-import jakarta.websocket.server.PathParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
+import java.util.List;
 
 @RestController
-@RequestMapping("/developers")
+@RequestMapping("/api/developers")
 public class DeveloperController {
 
-    private final DeveloperService developerService;
+    @Autowired
+    private DeveloperService developerService;
 
-    public DeveloperController(DeveloperService developerService) {
-        this.developerService = developerService;
+    @GetMapping
+    public List<Developer> getAllDevelopers() {
+        return developerService.getAllDevelopers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Developer> findById(@PathVariable Long id) {
-        var developer = developerService.findById(id);
-        return ResponseEntity.ok(developer);
+    public ResponseEntity<Developer> getDeveloperById(@PathVariable Long id) {
+        Developer developer = developerService.getDeveloperById(id);
+        if (developer != null) {
+            return ResponseEntity.ok(developer);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Developer> create(@RequestBody Developer developerToCreate){
-        var developerCreated = developerService.create(developerToCreate);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(developerCreated.getId()).toUri();
-        return ResponseEntity.created(location).body(developerCreated);
+    public Developer createDeveloper(@RequestBody Developer developer) {
+        return developerService.createDeveloper(developer);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDeveloper(@PathVariable Long id) {
+        developerService.deleteDeveloper(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{developerId}/projects/{projectId}")
+    public ResponseEntity<Developer> associateProjectToDeveloper(@PathVariable Long developerId, @PathVariable Long projectId) {
+        Developer developer = developerService.associateProjectToDeveloper(developerId, projectId);
+        return ResponseEntity.ok(developer);
     }
 }
